@@ -1,6 +1,3 @@
-// SocketChat.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -48,9 +45,27 @@ int main(int argc, char* argv[])
         cout << "Client: connect() is OK!" << endl;
         cout << "Client: Can start sending and receiving data..." << endl;
     }
+     
+    //Chat
+    char buffer[200];
+
+    while (true) {
+        cout << "Write message: \n";
+        cin.getline(buffer, 200);
+
+        int byteCount = send(clientSocket, buffer, 200, 0);
+
+        if (byteCount > 0) cout << "Message sent: " << buffer << endl;
+
+        byteCount = recv(clientSocket, buffer, 200, 0);
+
+        if (byteCount > 0) cout << "Received message: " << buffer << endl;
+        else cout<<"No message received";
+    }
+
+    //Close Socket 
     system("pause");
     WSACleanup();
-    return 0;
 }
 
 

@@ -26,6 +26,7 @@ int main(int argc, char* argv[])
     //Set up server Socket
     serverSocket = INVALID_SOCKET;
     serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    //serverSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP); for UDP
     if (serverSocket == INVALID_SOCKET) {
         cout << "Error at socket(): " << WSAGetLastError() << endl;
         WSACleanup();
@@ -59,6 +60,28 @@ int main(int argc, char* argv[])
         return -1;
     }
     cout << "Accepted connection" << endl;
+
+    //Chat
+    char buffer[200];
+    char confirmation[200] = "Message Received";
+
+    while (true) {
+        int byteCount = recv(acceptSocket, buffer, 200, 0);
+
+        if (byteCount > 0) cout << "Message received: " << buffer << endl;
+        else if (byteCount == 0) {
+            cout << "Disconnecting";
+            break;
+        }
+        else cout<<"No message received";
+
+        byteCount = send(acceptSocket, confirmation, 200, 0);
+
+        if (byteCount > 0) cout << "Confirmation send!" << endl;
+    }
+
+
+    //Close Socket
     system("pause");
     WSACleanup();
 }
