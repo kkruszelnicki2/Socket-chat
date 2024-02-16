@@ -1,2 +1,5 @@
 ﻿  SocketChatServer.cpp
+C:\Users\Siost\Desktop\programming\Socket-chat\SocketChatServer\SocketChatServer\SocketChatServer.cpp(128,39): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Siost\Desktop\programming\Socket-chat\SocketChatServer\SocketChatServer\SocketChatServer.cpp(13,26): warning C4101: 'acceptSocket': unreferenced local variable
+C:\Users\Siost\Desktop\programming\Socket-chat\SocketChatServer\SocketChatServer\SocketChatServer.cpp(56,10): warning C4101: 'buffer': unreferenced local variable
   SocketChatServer.vcxproj -> C:\Users\Siost\Desktop\programming\Socket-chat\SocketChatServer\x64\Debug\SocketChatServer.exe

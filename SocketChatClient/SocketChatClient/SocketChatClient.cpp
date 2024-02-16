@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
         byteCount = recv(clientSocket, buffer, 200, 0);
 
         if (byteCount > 0) cout << "Received message: " << buffer << endl;
-        else cout<<"No message received";
+        else cout << "No message received" << endl;
     }
 
     //Close Socket 

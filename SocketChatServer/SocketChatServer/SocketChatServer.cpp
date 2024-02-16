@@ -49,21 +49,24 @@ int main(int argc, char* argv[])
     else cout << "Bind() is OK!" << endl;
 
     //Listen
-    if (listen(serverSocket, 1) == SOCKET_ERROR) cout << "listen(): Error listening to socket" << WSAGetLastError() << endl;
+    if (listen(serverSocket, SOMAXCONN) == SOCKET_ERROR) cout << "listen(): Error listening to socket" << WSAGetLastError() << endl;
     else cout << "listen() is OK, I'm waiting for connections..." << endl;
 
+    //Chat
+    char buffer[200];
+    char confirmation[200] = "Message Received";
+
+    //Single client
+
     //Accept connection
-    acceptSocket = accept(serverSocket, NULL, NULL);
+
+    /*acceptSocket = accept(serverSocket, NULL, NULL);
     if (acceptSocket == INVALID_SOCKET) {
         cout << "accept failed: " << WSAGetLastError() << endl;
         WSACleanup();
         return -1;
     }
     cout << "Accepted connection" << endl;
-
-    //Chat
-    char buffer[200];
-    char confirmation[200] = "Message Received";
 
     while (true) {
         int byteCount = recv(acceptSocket, buffer, 200, 0);
@@ -78,12 +81,76 @@ int main(int argc, char* argv[])
         byteCount = send(acceptSocket, confirmation, 200, 0);
 
         if (byteCount > 0) cout << "Confirmation send!" << endl;
+    }*/
+
+    //Multiple clients
+
+    fd_set server;
+    FD_ZERO(&server);
+
+    FD_SET(serverSocket, &server);
+    bool isRunning = true;
+
+    while (isRunning) {
+        fd_set copy = server;
+
+        int socketCount = select(0, &copy, nullptr, nullptr, nullptr);
+
+        for (int i = 0; i < socketCount; i++) {
+            SOCKET clientSocket = copy.fd_array[i];
+
+            if (clientSocket == serverSocket) { //New connection
+                SOCKET client = accept(serverSocket, nullptr, nullptr); //accept connection
+
+                FD_SET(client, &server); //add client to set
+
+                char welcomeMsg[200] = "Welcome to the Chat! \n";
+                send(client, welcomeMsg, 200, 0);
+            }
+            else { //New message
+                char buffer[200];
+
+                int byteCount = recv(clientSocket, buffer, 200, 0);
+
+                if (byteCount <= 0) { //if client disconnects
+                    closesocket(clientSocket); //close client socket
+                    FD_CLR(clientSocket, &server); //remove clientSocket from set
+                }
+                else {
+                    if (buffer[0] == '\\') {
+                        if (string(buffer, byteCount) == "\\exit") {
+                            isRunning = false;
+                            break;
+                        }
+                        else continue;
+                    }
+
+                    for (int i = 0; i < server.fd_count; i++) {
+                        SOCKET outSock = server.fd_array[i];
+                        if (outSock != serverSocket && outSock != clientSocket) {
+                            send(outSock, buffer, byteCount, 0);
+                        }
+                    }
+                }
+            }
+        }
     }
 
+    closesocket(serverSocket);
+
+    char exitMsg[200] = "Server shuting down";
+
+    while (server.fd_count > 0) {
+        SOCKET socket = server.fd_array[0];
+        send(socket, exitMsg, 200, 0);
+
+        FD_CLR(socket, &server);
+        closesocket(socket);
+    }
 
     //Close Socket
-    system("pause");
     WSACleanup();
+    system("pause");
 }
 
 
